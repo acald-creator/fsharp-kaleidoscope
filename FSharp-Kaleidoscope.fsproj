@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FsLexYacc" Version="10.2.0" />
     <PackageReference Include="LLVMSharp" Version="5.0.0" />
   </ItemGroup>
 
