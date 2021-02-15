@@ -13,16 +13,18 @@
     <Watch Include="**\*.fsl;**\*.fsy" />
     <FsLex Include="Lexer.fsl" OtherFlags="--unicode --module Lexer" />
     <FsYacc Include="Parser.fsy" OtherFlags="--module Parser" />
-
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="AST.fs" />
     <Compile Include="$(FsYaccOutputFolder)/Parser.fs" />
     <Compile Include="$(FsLexOutputFolder)/Lexer.fs" />
+    <Compile Include="Codegen.fs" />
     <Compile Include="Program.fs" />
-
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FsLexYacc" Version="10.2.0" />
     <PackageReference Include="LLVMSharp" Version="5.0.0" />
   </ItemGroup>
-
 </Project>
