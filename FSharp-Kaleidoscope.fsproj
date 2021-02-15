@@ -5,23 +5,17 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>FSharp_Kaleidoscope</RootNamespace>
     <NoWarn>NU1608</NoWarn>
-    <FsLexToolExe>fslex.dll</FsLexToolExe>
-    <FsYaccToolExe>fsyacc.dll</FsYaccToolExe>
+    <FsLexOutputFolder>obj/fslexyacc/</FsLexOutputFolder>
+    <FsYaccOutputFolder>obj/fslexyacc/</FsYaccOutputFolder>
   </PropertyGroup>
 
   <ItemGroup>
-    <FsYacc Include="Parser.fsy">
-      <OtherFlags>--module Parser</OtherFlags>
-    </FsYacc>
+    <Watch Include="**\*.fsl;**\*.fsy" />
+    <FsLex Include="Lexer.fsl" OtherFlags="--unicode --module Lexer" />
+    <FsYacc Include="Parser.fsy" OtherFlags="--module Parser" />
 
-    <FsLex Include="Lexer.fsl">
-      <OtherFlags>--module Lexer --unicode</OtherFlags>
-    </FsLex>
-
-    <Compile Include="Parser.fsi" />
-    <Compile Include="Parser.fs" />
-    <Compile Include="Lexer.fs" />
-
+    <Compile Include="$(FsYaccOutputFolder)/Parser.fs" />
+    <Compile Include="$(FsLexOutputFolder)/Lexer.fs" />
     <Compile Include="Program.fs" />
 
   </ItemGroup>
