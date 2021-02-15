@@ -1,31 +1,19 @@
 %{
-    type Expr =
-        | Func of string * string list * Expr
-        | Extern of string * string list
-        | Call of Expr * Expr list
-        | Number of float
-        | Variable of string
-
-open FSharp.Text.Parsing
-    type ParseError (token, shift_tokens, reduce_tokens) =
-        inherit exn()
-        member __.Data = (token, shift_tokens, reduce_tokens)
-    let f_parse_error_rich<'t> (ctx:ParseErrorConext<'t>) =
-        ignore (raise (ParseError(sprintf "%0" ctx.CurrentToken, ctx.ShiftTokens, ctx.ReduceTokens)))
-    let f_parse_error_rich = Some f_parse_error_rich
+    open Ast
 %}
 
 %token DEF EXTERN
 %token <string> IDENTIFIER
 %token <float> NUMBER
+%token <string * int> BINOP
 %token SEMI COMMA LPAREN RPAREN EOF
 
 %start start
-%type <Expr list> start
+%type < Ast.Expr > start
 %%
 
-start : lines SEMI { $1 }
-lines : line { [$1] } | lines line { $1 @ [$2] }
+start: lines SEMI { $1 }
+lines: line { [$1] } | lines line { $1 @ [$2] }
 line:
     | DEF prototype expr { Func (fst $2, snd $2, $3) }
     | EXTERN prototype { Extern (fst $2, snd $2) }
@@ -34,16 +22,17 @@ line:
 expr:
     | primary { $1 }
     | IDENTIFIER LPAREN comma_exprs RPAREN { Call(Variable $1, $3) }
+    | expr BINOP expr { balance_binop($2, $1, $3) }
 
 primary:
     | NUMBER { Number $1 }
     | IDENTIFIER { Variable $1 }
     | LPAREN expr RPAREN { $2 }
 
-comma_exprs: { [] } | comma_exprs { $1 }
-comma_exprs:
+comma_exprs: { [] } | comma_exprs_1 { $1 }
+comma_exprs_1:
     | expr { [$1] }
-    | comma_exprs COMMA expr { $1 @ [$3] }
+    | comma_exprs_1 COMMA expr { $1 @ [$3] }
 
 arguments:
     | IDENTIFIER { [$1] }
