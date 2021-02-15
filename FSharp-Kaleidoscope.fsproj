@@ -5,7 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>FSharp_Kaleidoscope</RootNamespace>
     <FsLexToolExe>fslex.dll</FsLexToolExe>
-    <FsYaxxtoolExe>fsyacc.dll</FsYaxxtoolExe>
+    <FsYaccToolExe>fsyacc.dll</FsYaccToolExe>
   </PropertyGroup>
 
   <ItemGroup>
