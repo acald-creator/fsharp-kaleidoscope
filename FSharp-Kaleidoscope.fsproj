@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>FSharp_Kaleidoscope</RootNamespace>
+    <NoWarn>NU1608</NoWarn>
     <FsLexToolExe>fslex.dll</FsLexToolExe>
     <FsYaccToolExe>fsyacc.dll</FsYaccToolExe>
   </PropertyGroup>
