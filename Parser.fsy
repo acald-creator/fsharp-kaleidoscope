@@ -11,7 +11,7 @@ open FSharp.Text.Parsing
         inherit exn()
         member __.Data = (token, shift_tokens, reduce_tokens)
     let f_parse_error_rich<'t> (ctx:ParseErrorConext<'t>) =
-        ignore (raise (ParseError(sprintf "%0" ctx.CurrenToken, ctx.ShiftTokens, ctx.ReduceTokens)))
+        ignore (raise (ParseError(sprintf "%0" ctx.CurrentToken, ctx.ShiftTokens, ctx.ReduceTokens)))
     let f_parse_error_rich = Some f_parse_error_rich
 %}
 
