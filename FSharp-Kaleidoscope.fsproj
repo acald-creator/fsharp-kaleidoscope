@@ -4,10 +4,23 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>FSharp_Kaleidoscope</RootNamespace>
+    <FsLexToolExe>fslex.dll</FsLexToolExe>
+    <FsYaxxtoolExe>fsyacc.dll</FsYaxxtoolExe>
   </PropertyGroup>
 
   <ItemGroup>
+    <FsYacc Include="Parser.fsy">
+      <OtherFlags>--module Parser</OtherFlags>
+    </FsYacc>
+
+    <FsLex Include="Lexer.fsl">
+      <OtherFlags>--module Lexer --unicode</OtherFlags>
+    </FsLex>
+
     <Compile Include="Program.fs" />
+    <Compile Include="Parser.fs" />
+    <Compile Include="Lexer.fs" />
+
   </ItemGroup>
 
   <ItemGroup>
