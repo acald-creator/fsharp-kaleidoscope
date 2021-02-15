@@ -3,16 +3,15 @@
 let parse source =
     let buf =
         FSharp.Text.Lexing.LexBuffer<_>.FromString source
-
     try
         let expr = Parser.start (Lexer.tokenize) buf
-        expr |> ignore
+        List.map Codegen.dump_ir expr |> ignore
     with
     | :? Parser.ParseError as e ->
         let (tok, t1, t2) = e.Data
-        printfn "Error: %0" tok
-        printfn "Expected: %0" [ for t in t1 @ t2 -> Parser.tokenTagToTokenId t ]
-    | e -> printfn "Error: %0" e.Message
+        printfn "Error: %O" tok
+        printfn "Expected: %O" [ for t in t1 @ t2 -> Parser.tokenTagToTokenId t ]
+    | e -> printfn "Error: %O" e.Message
 
 [<EntryPoint>]
 let main argv =
