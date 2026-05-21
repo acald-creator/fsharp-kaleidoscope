@@ -46,19 +46,27 @@ dotnet run
 
 ## Interactive REPL Example
 
-Once running, you can declare extern functions, define custom functions, and evaluate expressions to see the generated LLVM IR in real-time.
+Once running, you can declare extern functions, define custom functions, evaluate expressions, and run JIT compiled functions in real-time.
 
 ```llvm
-kaleidoscope> extern sin(x);
-declare double @sin(double)
+kaleidoscope> 1+2;
+double 3.000000e+000
 
-kaleidoscope> def test(x) sin(x) * 2.0;
-define double @test(double) {
+kaleidoscope> def foo(x) x + 1.0;
+define double @foo(double %0) {
 entry:
-  %calltmp = call double @sin(double %0)
-  %multmp = fmul double %calltmp, 2.000000e+00
-  ret double %multmp
+  %addtmp = fadd double %0, 1.000000e+00
+  ret double %addtmp
 }
+
+kaleidoscope> foo(41.0);
+double 4.200000e+001
+
+kaleidoscope> extern sin(x);
+declare double @sin(double %0)
+
+kaleidoscope> sin(1.0);
+double 8.414710e-001
 ```
 
 To exit the REPL, use `Ctrl+C` or input empty lines.

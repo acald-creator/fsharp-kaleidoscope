@@ -18,6 +18,31 @@ let withString (s: string) (f: nativeptr<sbyte> -> 'a) : 'a =
 let themodule = withString "module" (fun name -> LLVM.ModuleCreateWithNameInContext(name, context))
 let builder = LLVM.CreateBuilderInContext(context)
 
+LLVM.LinkInMCJIT()
+LLVM.InitializeNativeTarget() |> ignore
+LLVM.InitializeNativeAsmPrinter() |> ignore
+LLVM.InitializeNativeAsmParser() |> ignore
+
+let triple = LLVM.GetDefaultTargetTriple()
+let targetMachine =
+    let mutable target = Unchecked.defaultof<nativeptr<LLVMTarget>>
+    let mutable errorMsg = NativePtr.ofVoidPtr (System.IntPtr.Zero.ToPointer())
+    let status = 
+        use targetPtr = fixed &target
+        use errorPtr = fixed &errorMsg
+        LLVM.GetTargetFromTriple(triple, targetPtr, errorPtr)
+    if status = 0 then
+        let empty = withString "" (fun s -> s)
+        let tm = LLVM.CreateTargetMachine(target, triple, empty, empty, LLVMCodeGenOptLevel.LLVMCodeGenLevelDefault, LLVMRelocMode.LLVMRelocDefault, LLVMCodeModel.LLVMCodeModelDefault)
+        LLVM.SetTarget(themodule, triple)
+        let targetData = LLVM.CreateTargetDataLayout(tm)
+        LLVM.SetModuleDataLayout(themodule, targetData)
+        tm
+    else
+        Unchecked.defaultof<LLVMTargetMachineRef>
+
+let passBuilderOptions = LLVM.CreatePassBuilderOptions()
+
 let namevalues = Dictionary<string, LLVMValueRef>()
 
 let rec codegen expr =
@@ -54,6 +79,10 @@ let rec codegen expr =
         let bb = withString "entry" (fun eptr -> LLVM.AppendBasicBlock(func, eptr))
         LLVM.PositionBuilderAtEnd(builder, bb) 
         let _ = LLVM.BuildRet(builder, !body)
+        let passesStr = "instcombine,reassociate,gvn,simplifycfg"
+        let _ = withString passesStr (fun pptr ->
+            LLVM.RunPassesOnFunction(func, pptr, targetMachine, passBuilderOptions)
+        )
         func
     | Expr.Extern(name, param) ->
         let func =
@@ -68,3 +97,38 @@ let dump_ir expr =
     let value = codegen expr
     LLVM.DumpValue(value)
     printfn ""
+
+type VoidToDouble = delegate of unit -> double
+
+let jitAndRun (funcVal: LLVMValueRef) =
+    let mutable options = LLVMMCJITCompilerOptions()
+    let size = System.UIntPtr(uint32 sizeof<LLVMMCJITCompilerOptions>)
+    use optionsPtr = fixed &options
+    LLVM.InitializeMCJITCompilerOptions(optionsPtr, size)
+
+    let mutable enginePtr : nativeptr<LLVMOpaqueExecutionEngine> = NativePtr.ofVoidPtr (System.IntPtr.Zero.ToPointer())
+    let mutable errorMsg : nativeptr<sbyte> = NativePtr.ofVoidPtr (System.IntPtr.Zero.ToPointer())
+    
+    use enginePtrPtr = fixed &enginePtr
+    use errorPtr = fixed &errorMsg
+    
+    let status = LLVM.CreateMCJITCompilerForModule(enginePtrPtr, themodule, optionsPtr, size, errorPtr)
+    let engineRef = new LLVMExecutionEngineRef(System.IntPtr(NativePtr.toVoidPtr enginePtr))
+    
+    if status <> 0 then
+        let msg = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(System.IntPtr(NativePtr.toVoidPtr errorMsg))
+        failwithf "JIT Creation Error: %s" msg
+        
+    let addr = withString "__anon_expr" (fun name -> LLVM.GetFunctionAddress(engineRef, name))
+    let funcDelegate = System.Runtime.InteropServices.Marshal.GetDelegateForFunctionPointer<VoidToDouble>(System.IntPtr(int64 addr))
+    let res = funcDelegate.Invoke()
+    
+    let mutable removedModule : nativeptr<LLVMOpaqueModule> = NativePtr.ofVoidPtr (System.IntPtr.Zero.ToPointer())
+    use removedModPtr = fixed &removedModule
+    let removeStatus = LLVM.RemoveModule(engineRef, themodule, removedModPtr, errorPtr)
+    if removeStatus <> 0 then
+        printfn "Warning: RemoveModule failed."
+        
+    LLVM.DisposeExecutionEngine(engineRef)
+    LLVM.DeleteFunction(funcVal)
+    res

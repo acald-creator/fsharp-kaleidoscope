@@ -17,7 +17,7 @@ lines: line { [$1] } | lines line { $1 @ [$2] }
 line:
     | DEF prototype expr { Func (fst $2, snd $2, $3) }
     | EXTERN prototype { Extern (fst $2, snd $2) }
-    | expr { $1 }
+    | expr { Func ("__anon_expr", [], $1) }
 
 expr:
     | primary { $1 }

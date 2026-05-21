@@ -1,11 +1,19 @@
+#nowarn "3391"
 // Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
 
 let parse source =
     let buf =
         FSharp.Text.Lexing.LexBuffer<_>.FromString source
     try
-        let expr = Parser.start (Lexer.tokenize) buf
-        List.map Codegen.dump_ir expr |> ignore
+        let exprs = Parser.start (Lexer.tokenize) buf
+        for expr in exprs do
+            match expr with
+            | AST.Func("__anon_expr", _, _) ->
+                let funcVal = Codegen.codegen expr
+                let result = Codegen.jitAndRun funcVal
+                printfn "double %e" result
+            | _ ->
+                Codegen.dump_ir expr
     with
     | :? AST.ParseError as e ->
         let (tok, t1, t2) = e.ParseData
