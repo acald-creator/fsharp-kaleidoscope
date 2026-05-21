@@ -1,6 +1,6 @@
 {
     open Parser
-    open Fsharp.Text.Lexing
+    open FSharp.Text.Lexing
     let lexeme (lexbuf : LexBuffer<char>) = new System.String(lexbuf.lexeme)
 }
 
