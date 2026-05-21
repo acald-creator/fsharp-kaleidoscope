@@ -7,8 +7,8 @@ This chapter introduces mutable local variables and variable assignment. It move
 * **Loads & Stores**: Reading from stack spaces using `load` and updating them using `store`.
 * **SSA Promotion (`mem2reg`)**: Converting the load/store pattern into optimized Static Single Assignment registers automatically.
 
-## LLVMSharp 5.0.0 Static APIs Used
-* `LLVM.BuildAlloca`
-* `LLVM.BuildLoad`
+## LLVMSharp 20.1.2 Static APIs Used
+* `LLVM.BuildAlloca` (requires type parameter due to opaque pointers)
+* `LLVM.BuildLoad2` (replacing deprecated `LLVM.BuildLoad`, requiring type parameter)
 * `LLVM.BuildStore`
 * `LLVM.AddPromoteMemoryToRegisterPass`

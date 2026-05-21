@@ -6,5 +6,5 @@ This chapter extends the lexer, parser, and code generator to allow users to dec
 * **Dynamic Precedence Table**: Updating the precedence parsing lookup maps at parse time.
 * **Unary and Binary Function Declarations**: Translating operator names to standard function call structures (e.g. `unary!` or `binary+`).
 
-## LLVMSharp 5.0.0 Static APIs Used
-* Generates normal `LLVM.AddFunction` and `LLVM.BuildCall` targets.
+## LLVMSharp 20.1.2 Static APIs Used
+* Generates normal `LLVM.AddFunction` and `LLVM.BuildCall2` targets (due to opaque pointer requirements).

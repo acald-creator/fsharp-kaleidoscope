@@ -1,6 +1,6 @@
 # Chapter 3: Code Generation
 
-This chapter maps the AST nodes defined in Chapter 2 to LLVM IR using the LLVMSharp 5.0.0 bindings.
+This chapter maps the AST nodes defined in Chapter 2 to LLVM IR using the LLVMSharp 20.1.2 bindings.
 
 ## Concepts
 * **LLVM Context**: Manages global LLVM states, types, and constants.
@@ -8,9 +8,9 @@ This chapter maps the AST nodes defined in Chapter 2 to LLVM IR using the LLVMSh
 * **LLVM Builder**: The helper object used to generate LLVM instructions.
 * **Symbol Table**: Keeps track of defined variables and parameter references during codegen.
 
-## LLVMSharp 5.0.0 Static APIs Used
+## LLVMSharp 20.1.2 Static APIs Used
 * `LLVM.ModuleCreateWithNameInContext`
 * `LLVM.CreateBuilderInContext`
 * `LLVM.BuildFAdd`, `LLVM.BuildFSub`, `LLVM.BuildFMul`
-* `LLVM.BuildCall`
+* `LLVM.BuildCall2` (using opaque pointers)
 * `LLVM.AddFunction`, `LLVM.AppendBasicBlock`

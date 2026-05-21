@@ -7,9 +7,9 @@ This chapter extends the parser and code generator to support conditional branch
 * **Basic Block Layout**: Structuring blocks for then, else, loop, and merge.
 * **Phi Nodes**: Selecting the correct value based on the incoming block execution path.
 
-## LLVMSharp 5.0.0 Static APIs Used
+## LLVMSharp 20.1.2 Static APIs Used
 * `LLVM.AppendBasicBlock`
 * `LLVM.BuildCondBr`, `LLVM.BuildBr`
 * `LLVM.PositionBuilderAtEnd`
 * `LLVM.BuildPhi`
-* `phiNode.AddIncoming`
+* `LLVM.AddIncoming`

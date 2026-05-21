@@ -7,7 +7,7 @@ This chapter adds function-level optimization passes and configures a JIT Execut
 * **Execution Engine / MCJIT**: Compiles LLVM IR modules to machine code on the fly and retrieves callable native function pointers.
 * **REPL Evaluation**: Evaluates top-level expressions immediately, executing them and printing the result.
 
-## LLVMSharp 5.0.0 Static APIs Used
+## LLVMSharp 20.1.2 Static APIs Used
 * `LLVM.CreateFunctionPassManagerForModule`
 * `LLVM.AddInstructionCombiningPass`, `LLVM.AddReassociatePass`, `LLVM.AddGVNPass`, `LLVM.AddCFGSimplificationPass`
 * `LLVM.InitializeFunctionPassManager`
