@@ -1,6 +1,6 @@
 # F# Kaleidoscope Compiler
 
-An implementation of the classic Kaleidoscope toy language compiler in F#, upgraded to target **.NET 8.0** and utilizing **LLVMSharp 5.0.0** and **FsLexYacc** for lexing/parsing.
+An implementation of the classic Kaleidoscope toy language compiler in F#, upgraded to target **.NET 8.0** and utilizing **LLVMSharp 20.1.2** and **FsLexYacc** for lexing/parsing.
 
 This repository serves as a reference for constructing LLVM-based compilers in F# using modern .NET runtimes.
 
@@ -10,8 +10,8 @@ This repository serves as a reference for constructing LLVM-based compilers in F
 
 - **Runtime & Language**: [.NET 8.0 SDK](https://dotnet.microsoft.com/download) / F#
 - **Lexer & Parser Generator**: [FsLexYacc](https://github.com/fsprojects/FsLexYacc)
-- **LLVM Bindings**: [LLVMSharp 5.0.0](https://github.com/microsoft/LLVMSharp) (utilizing the static `LLVM` functional API)
-- **Target LLVM**: LLVM 5.x compatible runtime
+- **LLVM Bindings**: [LLVMSharp 20.1.2](https://github.com/microsoft/LLVMSharp) (utilizing the static `LLVM` functional API)
+- **Target LLVM**: LLVM 20.x compatible runtime (via `libLLVM` / `libLLVM.runtime`)
 
 ---
 
