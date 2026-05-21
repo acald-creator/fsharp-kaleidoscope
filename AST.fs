@@ -4,12 +4,12 @@ open FSharp.Text.Parsing
 
 type ParseError(token, shift_tokens, reduce_tokens) =
     inherit exn()
-    member __.Data = (token, shift_tokens, reduce_tokens)
+    member __.ParseData = (token, shift_tokens, reduce_tokens)
 
-let f_parse_error_rich<'t> (ctx: ParseErrorConext<'t>) =
-    ignore (raise (ParseError(sprintf "%O" ctx.CurrentToken, ctx.ShiftTokens, ctx.ReduceTokens)))
+let f_parse_error_rich_impl<'t> (ctx: ParseErrorContext<'t>) =
+    raise (ParseError(sprintf "%O" ctx.CurrentToken, ctx.ShiftTokens, ctx.ReduceTokens))
 
-let f_parse_error_rich = Some f_parse_error_rich
+let f_parse_error_rich = Some f_parse_error_rich_impl
 
 type Expr =
     | Func of string * string list * Expr
@@ -17,7 +17,7 @@ type Expr =
     | Call of Expr * Expr list
     | Number of float
     | Variable of string
-    | Binope of (string * int) * Expr * Expr
+    | Binop of (string * int) * Expr * Expr
 
 let balance_binop (op, lhs, rhs) =
     let ops, prec = op

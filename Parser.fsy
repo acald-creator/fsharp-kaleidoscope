@@ -1,5 +1,5 @@
 %{
-    open Ast
+    open AST
 %}
 
 %token DEF EXTERN
@@ -9,7 +9,7 @@
 %token SEMI COMMA LPAREN RPAREN EOF
 
 %start start
-%type < Ast.Expr > start
+%type < AST.Expr list > start
 %%
 
 start: lines SEMI { $1 }

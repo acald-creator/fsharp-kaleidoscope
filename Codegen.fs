@@ -1,50 +1,52 @@
 module Codegen
 
 open LLVMSharp
-open Parser
+open AST
 open System.Collections.Generic
 
-let context = LLVMContextRef.Global
-let themodule = context.CreateModuleWithName "module"
-let builder = context.CreateBuilder()
+let context = LLVM.GetGlobalContext()
+let themodule = LLVM.ModuleCreateWithNameInContext("module", context)
+let builder = LLVM.CreateBuilderInContext(context)
 
-let namevalues = Dictionary<_, _>()
+let namevalues = Dictionary<string, LLVMValueRef>()
 
 let rec codegen expr =
     let (!) = codegen
     let (!!) = List.map codegen >> List.toArray
 
     match expr with
-        | Expr.Number f -> LLVMValueRef.CreateConstReal(context.DoubleType, f)
-        | Variable n -> name_values.[n]
-        | Binop((op, _), rhs, lhs) ->
-            match op with
-                | "+" -> builder.BuilderFAdd(!lhs, !rhs)
-                | "-" -> builder.BuilderFSub(!lhs, !rhs)
-                | "*" -> builder.BuilderFMul(!lhs, !rhs) 
-                | "<" ->
-                    let bool = builder.BuilderFCmp(LLVMRealPredicate.LLVMRealULT, !lhs, !rhs) 
-                    builder.BuilderUIToFP(bool, context.DoubleType)
-                | _ -> failwithf "Invalid Operator %)" op
-            | Call(callee, args) -> builder.BuildCall(!callee, !! args)
-            | Func(name, parem, body) ->
-                let func =
-                    let typ = [| for p in param -> context.DoubleType |]
-                    let ty = LLVMTypeRef.CreateFunction(context.DoubleType, typ) 
-                    themodule.AddFunction(name, ty)
-                namevalues.[name] <- func
-                for i, p in List.indexed param do name_values.[p] <- func.GetParem (uint32 i)
-                let bb = func.AppendBasicBloc "entry"
-                builder.PositionAtEnd bb 
-                let _ = builder.BuilderRet (! body)
-                func
-            | Extern(name, parem) ->
-                let func =
-                    let type = [| for p in parem -> context.DoubleType |]
-                    let ty = LLVMTypeRef.CreateFunction(context.DoubleType, typ) 
-                    themodule.AddFunction(name, ty)
-                name_values.[name] <- func
-                func
+    | Expr.Number f -> LLVM.ConstReal(LLVM.DoubleTypeInContext(context), f)
+    | Expr.Variable n -> namevalues.[n]
+    | Expr.Binop((op, _), lhs, rhs) ->
+        match op with
+        | "+" -> LLVM.BuildFAdd(builder, !lhs, !rhs, "addtmp")
+        | "-" -> LLVM.BuildFSub(builder, !lhs, !rhs, "subtmp")
+        | "*" -> LLVM.BuildFMul(builder, !lhs, !rhs, "multmp") 
+        | "<" ->
+            let boolVal = LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealULT, !lhs, !rhs, "cmptmp") 
+            LLVM.BuildUIToFP(builder, boolVal, LLVM.DoubleTypeInContext(context), "booltmp")
+        | _ -> failwithf "Invalid Operator %s" op
+    | Expr.Call(callee, args) -> LLVM.BuildCall(builder, !callee, !! args, "calltmp")
+    | Expr.Func(name, param, body) ->
+        let func =
+            let typ = [| for _ in param -> LLVM.DoubleTypeInContext(context) |]
+            let ty = LLVM.FunctionType(LLVM.DoubleTypeInContext(context), typ, false) 
+            LLVM.AddFunction(themodule, name, ty)
+        namevalues.[name] <- func
+        for i, p in List.indexed param do 
+            namevalues.[p] <- func.GetParam(uint32 i)
+        let bb = LLVM.AppendBasicBlock(func, "entry")
+        LLVM.PositionBuilderAtEnd(builder, bb) 
+        let _ = LLVM.BuildRet(builder, !body)
+        func
+    | Expr.Extern(name, param) ->
+        let func =
+            let typ = [| for _ in param -> LLVM.DoubleTypeInContext(context) |]
+            let ty = LLVM.FunctionType(LLVM.DoubleTypeInContext(context), typ, false) 
+            LLVM.AddFunction(themodule, name, ty)
+        namevalues.[name] <- func
+        func
+
 let dump_ir expr =
     let value = codegen expr
     value.Dump()

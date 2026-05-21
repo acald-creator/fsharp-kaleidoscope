@@ -7,8 +7,8 @@ let parse source =
         let expr = Parser.start (Lexer.tokenize) buf
         List.map Codegen.dump_ir expr |> ignore
     with
-    | :? Parser.ParseError as e ->
-        let (tok, t1, t2) = e.Data
+    | :? AST.ParseError as e ->
+        let (tok, t1, t2) = e.ParseData
         printfn "Error: %O" tok
         printfn "Expected: %O" [ for t in t1 @ t2 -> Parser.tokenTagToTokenId t ]
     | e -> printfn "Error: %O" e.Message
